@@ -1,6 +1,6 @@
 **OverView**
 
-This repository is forked from https://bitbucket.org/serkanp/bluetoothctl.git
+This repository is forked from https://github.com/elehobica/bluetoothctlwe.git
 
 **Linux command line bluetoothctl wrapper for nodejs**
 
