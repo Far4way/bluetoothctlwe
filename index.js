@@ -7,24 +7,22 @@
 /**
  * Modified by elehobica
  */
-
+/**
+ * Modified by Laryan
+ */
 exports = module.exports = {};
 exports.Bluetooth = function () {
-    //sudo usermod -G bluetooth -a pi
-    //recommended sudo rpi-update
-    //echo -e "connect FC:8F:90:21:12:0C \nquit" | bluetoothctl
-    var self = this;
+    let self = this;
 
-    var events = require('events');
+    let events = require('events');
     events.EventEmitter.call(self);
     self.__proto__ = events.EventEmitter.prototype;
 
-    //use ptywe.js
-    var pty = require('ptywe.js/lib/pty.js');
+    let pty = require('ptywe.js/lib/pty.js');
 
-    var ransi = require('strip-ansi');
+    let ransi = require('strip-ansi');
 
-    var term = pty.spawn('bash', [], {
+    let term = pty.spawn('bash', [], {
         name: 'xterm-color',
         cols: 100,
         rows: 40,
@@ -32,7 +30,7 @@ exports.Bluetooth = function () {
         env: process.env
     });
 
-    var bluetoothEvents = {
+    let bluetoothEvents = {
         Device: 'DeviceEvent',
         Controller: 'ControllerEvent',
         DeviceSignalLevel: 'DeviceSignalLevel',
@@ -41,13 +39,12 @@ exports.Bluetooth = function () {
         AlreadyScanning: 'AlreadyScanning',
         PassKey: 'PassKey'
     }
-    var mydata = "";
-    var devices = [];
-    var controllers = [];
-    var isBluetoothControlExists = false;
-    var isBluetoothReady = false;
-    var isScanning = false;
-    var isConfirmingPassKey = false;
+    let devices = [];
+    let controllers = [];
+    let isBluetoothControlExists = false;
+    let isBluetoothReady = false;
+    let isScanning = false;
+    let isConfirmingPassKey = false;
 
     Object.defineProperty(this, 'isBluetoothControlExists', {
         get: function () {
@@ -122,13 +119,12 @@ exports.Bluetooth = function () {
                 if (obj.devices[i].paired == '' && obj.devices[i].trycount < 4) {
                     obj.devices[i].trycount += 1;
                     obj.info(obj.devices[i].mac);
-                    console.log('checking info of ' + obj.devices[i].mac)
                 }
             }
         }
     }
 
-    var os = require('os');
+    let os = require('os');
     if (os.platform() == 'linux') {
         term.write('type bluetoothctl\r');
     }
@@ -146,194 +142,182 @@ exports.Bluetooth = function () {
             term.write('devices\r');
             setInterval(checkInfo, 5000, self)
         }
-        //console.log("mydata:" + data)
-        var regexdevice = /(\[[A-Z]{3,5}\])?\s?Device\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\s(?!RSSI)(?!Name:)(?!Alias:)(?!Class:)(?!Icon:)(?!Paired:)(?!Trusted:)(?!Blocked:)(?!Connected:)(?!LegacyPairing:)(?!not available)(?!UUIDs:)(?!TxPower:)(?!TxPower is nil)(?!ManufacturerData Key:)(?!ManufacturerData Value:)(?![0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})(?!\s)(.+)/gm;
-        var regexcontroller = /\[[A-Z]{3,5}\]?\s?Controller\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\s(?!Discovering)(.+) /gm;
-        var regexsignal = /\[[A-Z]{3,5}\]?\s?Device\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sRSSI:\s-(.+)/gm;
-        var regexinfo = /Device ([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\r?\n?\t?Name: (.+)\r?\n?\t?Alias: (.+)\r?\n?\t?Class: (.+)\r?\n?\t?Icon: (.+)\r?\n?\t?Paired: (.+)\r?\n?\t?Trusted: (.+)\r?\n?\t?Blocked: (.+)\r?\n?\t?Connected: (.+)\r?\n?\t?/gmi;
-
-        var regexconnected = /\[[A-Z]{3,5}\]?\s?Device\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sConnected:\s([a-z]{2,3})/gm;
-        var regexpaired = /\[[A-Z]{3,5}\]?\s?Device\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sPaired:\s([a-z]{2,3})/gm;
-        var regextrusted = /\[[A-Z]{3,5}\]?\s?Device\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sTrusted:\s([a-z]{2,3})/gm;
-        var regexblocked = /\[[A-Z]{3,5}\]?\s?Device\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sBlocked:\s([a-z]{2,3})/gm;
-	var regexpasskeyconfirmation = /\[agent\] Confirm passkey\s([0-9A-F]+)\s[^:]+:/gm;
-
-        var regexscanon1 = 'Discovery started';
-        var regexscanon2 = 'Failed to start discovery: org.bluez.Error.InProgress';
-        var regexscanon3 = 'Discovering: yes';
-        var regexscanoff1 = 'Discovery stopped'
-        var regexscanoff2 = 'Discovering: no';
+        let regexdevice = /\s?(\[[A-Z]{3,5}\])?\s?Device\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\s(?!RSSI)(?!Name:)(?!Alias:)(?!Class:)(?!Icon:)(?!Paired:)(?!Trusted:)(?!Blocked:)(?!Connected:)(?!LegacyPairing:)(?!not available)(?!UUIDs:)(?!TxPower:)(?!TxPower is nil)(?!ManufacturerData Key:)(?!ManufacturerData Value:)(?![0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})(?!\s)(.+)\s?/gmi;
+        let regexcontroller = /\s?\[[A-Z]{3,5}\]?\s?Controller\s([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\s(?!Discovering)(.+)\s?/gmi;
+        let regexsignal = /\s?\[[A-Z]{3,5}\]?\s?Device\s(?<mac>[0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sRSSI:\s-(?<rssi>.+)\s?/gmi;
+        
+        let regexconnected = /\s?\[[A-Z]{3,5}\]?\s?Device\s(?<mac>[0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sConnected:\s(?<connected>[a-z]{2,3})\s?/gmi;
+        let regexpaired = /\s?\[[A-Z]{3,5}\]?\s?Device\s(?<mac>[0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sPaired:\s(?<paired>[a-z]{2,3})\s?/gmi;
+        let regextrusted = /\s?\[[A-Z]{3,5}\]?\s?Device\s(?<mac>[0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sTrusted:\s(?<trusted>[a-z]{2,3})\s?/gmi;
+        let regexblocked = /\s?\[[A-Z]{3,5}\]?\s?Device\s(?<mac>[0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\sBlocked:\s(?<blocked>[a-z]{2,3})\s?/gmi;
+    	let regexpasskeyconfirmation = /\s?\[agent\] Confirm passkey\s(?<mac>[0-9A-F]+)\s[^:]+:\s?/gmi;
+        
+        let regexinfo = /\s?Device (?<mac>[0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}) \((?<type>.+)\)\r?\n?\t?Name: (?<name>.+)\r?\n?\t?Alias: (?<alias>.+)\r?\n?\t?Class: (?<class>.+)\r?\n?\t?Icon: (?<icon>.+)\r?\n?\t?Paired: (?<paired>.+)\r?\n?\t?Trusted: (?<trusted>.+)\r?\n?\t?Blocked: (?<blocked>.+)\r?\n?\t?Connected: (?<connected>.+)\r?\n?\t?LegacyPairing: (?<legacyPairing>.+)\r?\n?\t?\s?/gmi;
+        let regexscanon1 = 'Discovery started';
+        let regexscanon2 = 'Failed to start discovery: org.bluez.Error.InProgress';
+        let regexscanon3 = 'Discovering: yes';
+        let regexscanoff1 = 'Discovery stopped'
+        let regexscanoff2 = 'Discovering: no';
 
         checkDevice(regexdevice, data);
-        checkinfo(data);
+        checkinfo(regexinfo, data);
+        checkPaired(regexpaired, data);
         checkSignal(regexsignal, data);
         checkController(regexcontroller, data);
         checkConnected(regexconnected, data);
-        checkPaired(regexpaired, data);
         checkTrusted(regextrusted, data);
         checkBlocked(regexblocked, data);
         checkPasskeyConfirmation(regexpasskeyconfirmation, data);
-
         if (data.indexOf(regexscanoff1) !== -1 || data.indexOf(regexscanoff2) !== -1)isScanning = false;
         if (data.indexOf(regexscanon1) !== -1 || data.indexOf(regexscanon2) !== -1 || data.indexOf(regexscanon3) !== -1)isScanning = true;
     })
 
 
     function checkBlocked(regstr, data) {
-        var m;
-        while ((m = regstr.exec(data)) !== null) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
             //m[1] - macid
             //m[2] - yes or no
-            if (devices.length > 0) {
-                for (j = 0; j < devices.length; j++) {
-                    if (devices[j].mac == m[1]) {
-                        devices[j].blocked = m[2];
-                        console.log(m[1] + " blocked " + m[2])
-                        self.emit(bluetoothEvents.Device, devices)
-                    }
+            for (j = 0; j < devices.length; j++) {
+                if (devices[j].mac == m.groups.mac) {
+                    devices[j].blocked = m.groups.blocked;
+                    console.log(m.groups.mac + " blocked " + m.groups.blocked)
+                    self.emit(bluetoothEvents.Device, devices)
                 }
             }
         }
     }
 
     function checkPaired(regstr, data) {
-        var m;
-        while ((m = regstr.exec(data)) !== null) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
             //m[1] - macid
             //m[2] - yes or no
-            if (devices.length > 0) {
-                for (j = 0; j < devices.length; j++) {
-                    if (devices[j].mac == m[1]) {
-                        devices[j].paired = m[2];
-                        console.log(m[1] + " paired " + m[2])
-                        self.emit(bluetoothEvents.Device, devices)
-                    }
+            for (j = 0; j < devices.length; j++) {
+                if (devices[j].mac == m.groups.mac) {
+                    devices[j].paired = m.groups.paired;
+                    console.log(m.groups.mac + " paired " + m.groups.paired)
+                    self.emit(bluetoothEvents.Device, devices)
                 }
             }
         }
     }
 
     function checkPasskeyConfirmation(regstr, data) {
-        var m;
-        while ((m = regstr.exec(data)) !== null) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
             //m[1] - passkey
-	    //console.log("Confirm passkey : " + m[1]);
-            self.emit(bluetoothEvents.PassKey, m[1])
-	    // confirmPasskey(true);
+	        console.log("Confirm passkey : " + m.groups.mac);
+            self.emit(bluetoothEvents.PassKey, m.groups.mac)
+            // confirmPasskey(true);
 
-	    isConfirmingPassKey = true;
+            isConfirmingPassKey = true;
         }
     }
 
     function checkTrusted(regstr, data) {
-        var m;
-        while ((m = regstr.exec(data)) !== null) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
             //m[1] - macid
             //m[2] - yes or no
-            if (devices.length > 0) {
-                for (j = 0; j < devices.length; j++) {
-                    if (devices[j].mac == m[1]) {
-                        devices[j].trusted = m[2];
-                        console.log(m[1] + " trusted " + m[2])
-                        self.emit(bluetoothEvents.Device, devices)
-
-                    }
+            for (j = 0; j < devices.length; j++) {
+                if (devices[j].mac == m.groups.mac) {
+                    devices[j].trusted = m.groups.trusted;
+                    console.log(m.groups.mac + " trusted " + m.groups.trusted)
+                    self.emit(bluetoothEvents.Device, devices)
                 }
             }
         }
     }
 
     function checkConnected(regstr, data) {
-        var m;
-        while ((m = regstr.exec(data)) !== null) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
             //m[1] - macid
             //m[2] - yes or no
-            if (devices.length > 0) {
-                for (j = 0; j < devices.length; j++) {
-                    if (devices[j].mac == m[1]) {
-                        devices[j].connected = m[2];
-                        console.log(m[1] + " connected " + m[2])
-                        self.emit(bluetoothEvents.Device, devices)
-                    }
+            for (j = 0; j < devices.length; j++) {
+                if (devices[j].mac == m.groups.mac) {
+                    devices[j].connected = m.groups.connected;
+                    console.log(m.groups.mac + " connected " + m.groups.connected)
+                    self.emit(bluetoothEvents.Device, devices)
                 }
             }
         }
     }
 
-    function checkinfo(data) {
-
-        var regstr = /Device ([0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2}[\.:-][0-9A-F]{1,2})\r?\n?\t?Name: (.+)\r?\n?\t?Alias: (.+)\r?\n?\t?Class: (.+)\r?\n?\t?Icon: (.+)\r?\n?\t?Paired: (.+)\r?\n?\t?Trusted: (.+)\r?\n?\t?Blocked: (.+)\r?\n?\t?Connected: (.+)\r?\n?\t?/gmi;
-
-        while ((m = regstr.exec(data)) !== null) {
+    function checkinfo(regstr, data) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
             //m[1] - macid
-            //m[2] - device name
-            //m[3] - alias
-            //m[4] - Class
-            //m[5] - Icon
-            //m[6] - paired
-            //m[7] - trusted
-            //m[8] - blocked
-            //m[9] - connected
-            if (devices.length > 0) {
-                for (j = 0; j < devices.length; j++) {
-                    if (devices[j].mac == m[1]) {
-                        devices[j].name = m[3]
-                        devices[j].class = m[4]
-                        devices[j].icon = m[5]
-                        devices[j].paired = m[6]
-                        devices[j].trusted = m[7]
-                        devices[j].blocked = m[8]
-                        devices[j].connected = m[9]
-                        self.emit(bluetoothEvents.Device, devices)
-                        //console.log ('info received:' + JSON.stringify(devices[j]))
-                    }
+            //m[2] - address type (public, random, private, ...)
+            //m[3] - device name
+            //m[4] - alias
+            //m[5] - Class
+            //m[6] - Icon
+            //m[7] - paired
+            //m[8] - trusted
+            //m[9] - blocked
+            //m[10] - connected
+            //m[11] - legacy pairing
+            for (j = 0; j < devices.length; j++) {
+                if (devices[j].mac == m.groups.mac) {
+                    devices[j].type = m.groups.type
+                    devices[j].name = m.groups.name
+                    devices[j].alias = m.groups.alias
+                    devices[j].class = m.groups.class
+                    devices[j].icon = m.groups.icon
+                    devices[j].paired = m.groups.paired
+                    devices[j].trusted = m.groups.trusted
+                    devices[j].blocked = m.groups.blocked
+                    devices[j].connected = m.groups.connected
+                    devices[j].legacyPairing = m.groups.legacyPairing
+                    //console.log('infos for device: ' + m.groups.mac + ' are: ', devices[j]);
+                    self.emit(bluetoothEvents.Device, devices)
                 }
             }
         }
     }
 
     function checkSignal(regstr, data) {
-        var m;
-        while ((m = regstr.exec(data)) !== null) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
             //m[1] - macid
             //m[2] - signal Level
-            if (devices.length > 0) {
-                for (j = 0; j < devices.length; j++) {
-                    if (devices[j].mac == m[1]) {
-                        devices[j].signal = parseInt(m[2])
-                        //console.log('signal level of:' + m[1] + ' is ' + m[2])
-                        self.emit(bluetoothEvents.Device, devices)
-                        self.emit(bluetoothEvents.DeviceSignalLevel, devices, m[1], m[2]);
-                    }
+            for (j = 0; j < devices.length; j++) {
+                if (devices[j].mac == m.groups.mac) {
+                    devices[j].signal = parseInt(m.groups.rssi)
+                    console.log('signal level of:' + m.groups.mac + ' is ' + m.groups.rssi)
+                    self.emit(bluetoothEvents.Device, devices)
+                    self.emit(bluetoothEvents.DeviceSignalLevel, devices, m.groups.mac, m.groups.rssi);
                 }
             }
         }
     }
 
     function checkController(regstr, data) {
-        var m;
-        while ((m = regstr.exec(data)) !== null) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
@@ -342,16 +326,15 @@ exports.Bluetooth = function () {
             controllers = [];
             controllers.push({mac: m[1], name: m[2]});
             self.emit(bluetoothEvents.Controller, controllers);
-            //console.log('controller found:' + m[1])
+            console.log('controller found:' + m[1])
             term.write('power on\r');
             term.write('agent on\r');
-
         }
     }
 
     function checkDevice(regstr, data) {
-        var m;
-        while ((m = regstr.exec(data)) !== null) {
+        let m = null;
+        while ((m  = regstr.exec(data)) !== null) {
             if (m.index === regstr.lastIndex) {
                 regstr.lastIndex++;
             }
@@ -368,8 +351,8 @@ exports.Bluetooth = function () {
                         }
                     }
                 }
-            } else {
-                var found = false;
+            } else if(m[1] != "[CHG]"){
+                let found = false;
                 if (devices.length > 0) {
                     for (j = 0; j < devices.length; j++) {
                         if (devices[j].mac == m[2])found = true;
@@ -377,7 +360,7 @@ exports.Bluetooth = function () {
                     }
                 }
                 if (!found) {
-                    console.log('adding device ' + m[2])
+                    //console.log('adding device ' + m[2])
                     devices.push({
                         mac: m[2],
                         name: m[3],
@@ -394,11 +377,8 @@ exports.Bluetooth = function () {
             }
         }
         if ((regstr.exec(data)) !== null) self.emit(bluetoothEvents.Device, devices)
-
     }
 }
-
-//region exports
 
 exports.agent = function (start) {
     this.term.write('agent ' + (start ? 'on' : 'off') + '\r');
@@ -473,12 +453,10 @@ exports.getDevicesFromController = function () {
 
 exports.checkBluetoothController=function(){
     try{
-        var execSync = require("child_process").execSync;
+        let execSync = require("child_process").execSync;
         return !!execSync("type bluetoothctl", {encoding: "utf8"});
     }
     catch(e){
         return false;
     }
 }
-
-//endregion
